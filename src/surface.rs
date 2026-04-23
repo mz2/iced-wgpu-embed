@@ -18,7 +18,8 @@ use iced_core::{Color, Font, Pixels, Size};
 use iced_runtime::user_interface::{self, UserInterface};
 use iced_wgpu::graphics::shell::Shell;
 use iced_wgpu::graphics::Viewport;
-use iced_wgpu::{wgpu, Engine, Renderer};
+use iced_wgpu::wgpu;
+use iced_wgpu::{Engine, Renderer};
 
 use crate::touch::{translate_touch_events, TouchEvent, TouchPhase};
 use crate::viewport::fit_surface;

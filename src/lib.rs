@@ -77,5 +77,6 @@ pub use surface::{EmbedConfig, IcedEmbed};
 pub use touch::{TouchEvent, TouchPhase};
 pub use viewport::fit_surface;
 
-// Re-export wgpu so consumers can create Instance/Surface without version conflicts
-pub use wgpu;
+// Re-export wgpu (from iced_wgpu) so consumers can create Instance/Surface
+// without version conflicts
+pub use iced_wgpu::wgpu;

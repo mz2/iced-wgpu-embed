@@ -1,0 +1,25 @@
+[package]
+name = "counter-example"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[lib]
+# staticlib for iOS (linked into the Swift binary)
+# cdylib for Android (loaded via System.loadLibrary)
+crate-type = ["staticlib", "cdylib"]
+
+[dependencies]
+iced-wgpu-embed = { path = "../.." }
+iced_core = { git = "https://github.com/iced-rs/iced", branch = "master" }
+iced_widget = { git = "https://github.com/iced-rs/iced", branch = "master", features = ["wgpu"] }
+iced_wgpu = { git = "https://github.com/iced-rs/iced", branch = "master" }
+log = "0.4"
+
+# Android-specific
+[target.'cfg(target_os = "android")'.dependencies]
+jni = "0.21"
+ndk = "0.9"
+ndk-sys = "0.6"
+android_logger = "0.14"
+raw-window-handle = "0.6"
