@@ -40,8 +40,6 @@ pub struct EmbedConfig {
     pub height: u32,
     /// Display scale factor (e.g. 2.0 for Retina, 3.0 for xxxhdpi).
     pub scale_factor: f32,
-    /// Optional JSON string to restore the program's state.
-    pub saved_state: Option<String>,
     /// Additional font data to load (e.g. bold weights).
     /// Each slice must be `'static` (e.g. from `include_bytes!`).
     /// Fira Sans Regular is always loaded automatically.
@@ -99,7 +97,13 @@ pub struct IcedEmbed<P: Program> {
 impl<P: Program> IcedEmbed<P> {
     /// Create a new embedded iced rendering context.
     ///
-    /// See [`EmbedConfig`] for the configuration parameters.
+    /// The `program` is constructed by the caller with whatever
+    /// platform-specific configuration it needs (audio, MIDI, collaboration,
+    /// etc.). [`IcedEmbed`] will call
+    /// [`set_viewport_size`](Program::set_viewport_size) on it once the
+    /// viewport is computed.
+    ///
+    /// See [`EmbedConfig`] for the wgpu/surface configuration parameters.
     ///
     /// # Errors
     ///
@@ -107,6 +111,7 @@ impl<P: Program> IcedEmbed<P> {
     /// configuration fails.
     pub fn new(
         config: EmbedConfig,
+        program: P,
         notifier: impl iced_wgpu::graphics::shell::Notifier + 'static,
         redraw_flag: RedrawFlag,
     ) -> Result<Self, String> {
@@ -116,7 +121,6 @@ impl<P: Program> IcedEmbed<P> {
             width,
             height,
             scale_factor,
-            saved_state,
             extra_fonts,
         } = config;
 
@@ -245,7 +249,7 @@ impl<P: Program> IcedEmbed<P> {
         let cache = user_interface::Cache::new();
 
         // ── Program state ──
-        let mut program = P::new(saved_state.as_deref());
+        let mut program = program;
         let logical = viewport.logical_size();
         program.set_viewport_size(logical.width, logical.height);
 

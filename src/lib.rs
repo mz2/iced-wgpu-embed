@@ -40,15 +40,15 @@
 //! let redraw_flag = RedrawFlag::new();
 //! let notifier = SimpleNotifier::new(&redraw_flag);
 //!
-//! // 3. Create the embedded iced rendering context
+//! // 3. Create the program and embedded iced rendering context
+//! let my_app = MyApp::new();
 //! let config = EmbedConfig {
 //!     instance, surface,
 //!     width: 1920, height: 1080,
 //!     scale_factor: 2.0,
-//!     saved_state: None,
 //!     extra_fonts: vec![],
 //! };
-//! let mut embed = IcedEmbed::<MyApp>::new(config, notifier, redraw_flag)?;
+//! let mut embed = IcedEmbed::new(config, my_app, notifier, redraw_flag)?;
 //!
 //! // 4. Drive the render loop from your platform's vsync callback
 //! let needs_redraw = embed.enter_frame();

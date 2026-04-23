@@ -1,8 +1,8 @@
 //! The [`Program`] trait for embedded iced applications.
 //!
 //! This extends iced's core `Program` concept (Message + update + view) with
-//! lifecycle hooks specific to native embedding: construction from persisted
-//! state, per-frame ticking, viewport changes, and serialization.
+//! lifecycle hooks specific to native embedding: per-frame ticking, viewport
+//! changes, serialization, and frame-bracketing hooks.
 //!
 //! Implementors provide the application logic; [`IcedEmbed`](crate::IcedEmbed)
 //! handles all wgpu and iced rendering infrastructure.
@@ -22,10 +22,6 @@
 //!
 //! impl Program for Counter {
 //!     type Message = Message;
-//!
-//!     fn new(_saved_state: Option<&str>) -> Self {
-//!         Counter { count: 0 }
-//!     }
 //!
 //!     fn update(&mut self, message: Message) {
 //!         match message {
@@ -54,9 +50,6 @@ use iced_widget::Theme;
 /// This trait combines iced's core program interface (message, update, view)
 /// with lifecycle hooks for native embedding:
 ///
-/// - **Construction**: [`new`](Program::new) receives optional persisted state
-///   so the app can restore its previous session.
-///
 /// - **Per-frame tick**: Each frame, [`IcedEmbed`](crate::IcedEmbed) sends
 ///   [`tick_message`](Program::tick_message) to the app before building the UI.
 ///   Use this to poll external state (audio feedback, network, etc.).
@@ -67,12 +60,13 @@ use iced_widget::Theme;
 ///
 /// - **Serialization**: [`to_json`](Program::to_json) allows the platform to
 ///   persist app state on background/terminate.
+///
+/// The program is constructed by the platform layer (which owns audio, MIDI,
+/// collaboration, and other platform-specific state) and passed to
+/// [`IcedEmbed::new`](crate::IcedEmbed::new).
 pub trait Program: 'static {
     /// The message type for this application.
     type Message: Clone + std::fmt::Debug;
-
-    /// Create a new instance, optionally restoring from a JSON state string.
-    fn new(saved_state: Option<&str>) -> Self;
 
     /// Handle a message (from UI interaction or tick).
     fn update(&mut self, message: Self::Message);

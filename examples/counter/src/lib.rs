@@ -34,9 +34,7 @@ enum Message {
     Reset,
 }
 
-impl Program for Counter {
-    type Message = Message;
-
+impl Counter {
     fn new(saved_state: Option<&str>) -> Self {
         let count = saved_state
             .and_then(|s| s.parse().ok())
@@ -47,6 +45,10 @@ impl Program for Counter {
             viewport_height: 0.0,
         }
     }
+}
+
+impl Program for Counter {
+    type Message = Message;
 
     fn update(&mut self, message: Message) {
         match message {
@@ -161,17 +163,18 @@ pub unsafe extern "C" fn counter_create(
         (callback)(CALLBACK_REQUEST_REDRAW, std::ptr::null(), 0);
     });
 
+    let counter = Counter::new(state_json.as_deref());
+
     let config = EmbedConfig {
         instance,
         surface,
         width,
         height,
         scale_factor,
-        saved_state: state_json,
         extra_fonts: vec![],
     };
 
-    match IcedEmbed::<Counter>::new(config, notifier, redraw_flag) {
+    match IcedEmbed::new(config, counter, notifier, redraw_flag) {
         Ok(embed) => Box::into_raw(Box::new(CounterHandle { embed })),
         Err(e) => {
             log::error!("Failed to create IcedEmbed: {e}");
@@ -369,6 +372,8 @@ mod android {
             }
         };
 
+        let counter = Counter::new(state_json.as_deref());
+
         let redraw_flag = RedrawFlag::new();
         let notifier = SimpleNotifier::new(&redraw_flag);
 
@@ -378,11 +383,10 @@ mod android {
             width: width as u32,
             height: height as u32,
             scale_factor,
-            saved_state: state_json,
             extra_fonts: vec![],
         };
 
-        match IcedEmbed::<Counter>::new(config, notifier, redraw_flag) {
+        match IcedEmbed::new(config, counter, notifier, redraw_flag) {
             Ok(embed) => {
                 let handle = Box::new(CounterHandle { embed });
                 Box::into_raw(handle) as jlong
