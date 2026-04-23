@@ -20,7 +20,6 @@
 //! - [`RedrawFlag`] / [`SimpleNotifier`] / [`CallbackNotifier`] — Redraw
 //!   signaling between iced internals and your platform render loop.
 //! - [`TouchPhase`] / [`TouchEvent`] — `#[repr(C)]` touch event types for FFI.
-//! - [`Diagnostics`] — Atomic frame-time and underrun counters.
 //! - [`fit_surface`] — Utility to downscale surfaces that exceed GPU texture limits.
 //!
 //! ## Quick start
@@ -63,7 +62,6 @@
 //! This crate re-exports [`wgpu`] and key iced types so consumers don't need
 //! to coordinate dependency versions.
 
-pub mod diagnostics;
 pub mod notifier;
 pub mod program;
 pub mod redraw_flag;
@@ -72,7 +70,6 @@ pub mod touch;
 pub mod viewport;
 
 // Re-export primary types at crate root
-pub use diagnostics::Diagnostics;
 pub use notifier::{CallbackNotifier, SimpleNotifier};
 pub use program::Program;
 pub use redraw_flag::RedrawFlag;

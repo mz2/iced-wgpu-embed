@@ -9,7 +9,6 @@
 //! [`IcedEmbed::new`]. From there, the platform drives the render loop by
 //! calling [`enter_frame`](IcedEmbed::enter_frame) on each vsync.
 
-use std::sync::Arc;
 use std::time::Instant;
 
 use iced_core::mouse;
@@ -21,7 +20,6 @@ use iced_wgpu::graphics::shell::Shell;
 use iced_wgpu::graphics::Viewport;
 use iced_wgpu::{wgpu, Engine, Renderer};
 
-use crate::diagnostics::Diagnostics;
 use crate::touch::{translate_touch_events, TouchEvent, TouchPhase};
 use crate::viewport::fit_surface;
 use crate::Program;
@@ -93,8 +91,8 @@ pub struct IcedEmbed<P: Program> {
     redraw_flag: RedrawFlag,
     theme: iced_widget::Theme,
 
-    // Diagnostics
-    diagnostics: Arc<Diagnostics>,
+    // Frame timing
+    last_frame_time_us: u64,
 }
 
 impl<P: Program> IcedEmbed<P> {
@@ -127,8 +125,6 @@ impl<P: Program> IcedEmbed<P> {
             height,
             scale_factor,
         );
-
-        let diagnostics = Arc::new(Diagnostics::new());
 
         // ── wgpu adapter + device setup ──
         let adapter = pollster::block_on(instance.request_adapter(&wgpu::RequestAdapterOptions {
@@ -268,7 +264,7 @@ impl<P: Program> IcedEmbed<P> {
             program,
             redraw_flag,
             theme: iced_widget::Theme::Dark,
-            diagnostics,
+            last_frame_time_us: 0,
         })
     }
 
@@ -352,10 +348,8 @@ impl<P: Program> IcedEmbed<P> {
 
         output.present();
 
-        // ── Diagnostics ──
-        let elapsed = frame_start.elapsed();
-        self.diagnostics
-            .record_frame_time_us(elapsed.as_micros() as u64);
+        // ── Frame timing ──
+        self.last_frame_time_us = frame_start.elapsed().as_micros() as u64;
 
         // ── Redraw determination ──
         let iced_wants_redraw = self.redraw_flag.take();
@@ -534,9 +528,9 @@ impl<P: Program> IcedEmbed<P> {
         &mut self.program
     }
 
-    /// Access the shared diagnostics counters.
-    pub fn diagnostics(&self) -> &Arc<Diagnostics> {
-        &self.diagnostics
+    /// The most recent frame render time in microseconds.
+    pub fn last_frame_time_us(&self) -> u64 {
+        self.last_frame_time_us
     }
 
     /// Access the current viewport.

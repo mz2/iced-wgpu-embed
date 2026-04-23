@@ -223,7 +223,6 @@ assert!(width <= 8192);
 | `CallbackNotifier<F>` | Flag + closure notifier (iOS style) |
 | `TouchPhase` | `#[repr(C)]` touch phase enum |
 | `TouchEvent` | `#[repr(C)]` touch event struct for FFI batching |
-| `Diagnostics` | Atomic frame-time and underrun counters |
 | `fit_surface()` | Viewport scaling for GPU texture limits |
 
 ## License
