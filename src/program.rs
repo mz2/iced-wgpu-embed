@@ -34,7 +34,7 @@
 //!         text(format!("Count: {}", self.count)).into()
 //!     }
 //!
-//!     fn tick_message() -> Message { Message::Tick }
+//!     fn tick_message() -> Option<Message> { Some(Message::Tick) }
 //!     fn set_viewport_size(&mut self, _w: f32, _h: f32) {}
 //!     fn to_json(&self) -> String { format!("{{\"count\":{}}}", self.count) }
 //! }
@@ -75,12 +75,15 @@ pub trait Program: 'static {
     /// and the tick message.
     fn view(&self) -> Element<'_, Self::Message, Theme, Renderer>;
 
-    /// The message to send at the start of each frame (before building the UI).
+    /// Optional message to send at the start of each frame (before building the UI).
     ///
-    /// This is the main entry point for polling external state. The app's
-    /// [`update`](Program::update) handler for this message should read any
-    /// external inputs (audio feedback, MIDI, network) and update internal state.
-    fn tick_message() -> Self::Message;
+    /// For simple apps, return `Some(Message::Tick)` to poll external state
+    /// each frame. For complex apps that handle multiple tick stages (e.g.
+    /// MIDI input + sequencer + audio feedback), do all work in
+    /// [`pre_frame`](Program::pre_frame) and return `None` here.
+    fn tick_message() -> Option<Self::Message> {
+        None
+    }
 
     /// Notify the app that the viewport size changed (in logical points).
     fn set_viewport_size(&mut self, width: f32, height: f32);

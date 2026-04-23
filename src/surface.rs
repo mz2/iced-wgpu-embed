@@ -307,7 +307,9 @@ impl<P: Program> IcedEmbed<P> {
 
         // ── Pre-frame hook + tick ──
         self.program.pre_frame();
-        self.program.update(P::tick_message());
+        if let Some(msg) = P::tick_message() {
+            self.program.update(msg);
+        }
 
         // ── Build and update iced UI ──
         let mut events = std::mem::take(&mut self.pending_events);
@@ -519,7 +521,9 @@ impl<P: Program> IcedEmbed<P> {
     /// but still needs to drive state (e.g. a playing sequencer).
     pub fn background_tick(&mut self) {
         self.program.pre_frame();
-        self.program.update(P::tick_message());
+        if let Some(msg) = P::tick_message() {
+            self.program.update(msg);
+        }
         self.program.post_update();
     }
 

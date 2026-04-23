@@ -89,8 +89,8 @@ impl Program for Counter {
         .into()
     }
 
-    fn tick_message() -> Message {
-        Message::Tick
+    fn tick_message() -> Option<Message> {
+        Some(Message::Tick)
     }
 
     fn set_viewport_size(&mut self, width: f32, height: f32) {
